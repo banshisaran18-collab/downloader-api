@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Video Downloader</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7f6; text-align: center; padding-top: 50px; margin: 0; }
+        .container { max-width: 450px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-bottom: 20px; }
+        input { width: 90%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
+        button { width: 95%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        #loader { display: none; margin-top: 20px; font-weight: bold; color: #555; }
+        #result { margin-top: 20px; }
+        .download-btn { display: inline-block; width: 90%; padding: 12px; background: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 10px rgba(22,163,74,0.3); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🚀 Fast Video Downloader</h2>
+    <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Download Reels & TikTok Videos Directly Here</p>
+    <input type="text" id="videoUrlInput" placeholder="Paste video link here...">
+    <button onclick="startDownload()">Download Now</button>
+    <div id="loader">🔄 Processing Video... Please wait...</div>
+    <div id="result"></div>
+</div>
+
+<script>
+function startDownload() {
+    var inputUrl = document.getElementById('videoUrlInput').value;
+    var loader = document.getElementById('loader');
+    var resultDiv = document.getElementById('result');
+
+    if(!inputUrl) { alert('Please paste a link first!'); return; }
+
+    loader.style.display = "block";
+    resultDiv.innerHTML = "";
+
+    // IMPORTANT: Niche wali line mein apna Render link mita kar apna asli link paste karein
+    var myRenderServer = "https://onrender.com"; 
+
+    fetch(myRenderServer + "/api/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: inputUrl })
+    })
+    .then(response => response.json())
+    .then(data => {
+        loader.style.display = "none";
+        if(data && data.downloadUrl) {
+            // Bina kisi teesri site par bhejey, direct download button dikhana
+            resultDiv.innerHTML = `<a href="${data.downloadUrl}" target="_blank" download class="download-btn">📥 Save Video to Gallery</a>`;
+        } else {
+            resultDiv.innerHTML = "<p style='color: red; font-weight: bold;'>❌ Video file could not be extracted. Try another link.</p>";
+        }
+    })
+    .catch(err => {
+        loader.style.display = "none";
+        resultDiv.innerHTML = "<p style='color: red; font-weight: bold;'>❌ Server Connection Failed. Try again later.</p>";
+        console.error(err);
+    });
+}
+</script>
+
+</body>
+  </html>
+  
