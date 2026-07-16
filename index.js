@@ -1,37 +1,54 @@
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
-const app = express();
+async function handleDownload() {
+    const userLink = document.getElementById('linkInput').value.trim();
+    const loaderDiv = document.getElementById('loader');
 
-app.use(cors()); // CORS Security error ko bypass karne ke liye
-app.use(express.json());
+    // 1. Check karein ki link khali toh nahi hai
+    if (!userLink) {
+        alert("⚠️ Please paste a video link first!");
+        return;
+    }
 
-// Main Dynamic Endpoint jo video link process karega
-app.post('/api/download', async (req, res) => {
-    const videoUrl = req.body.url;
-    if (!videoUrl) return res.status(400).json({ error: 'URL is required' });
+    // 2. Loading animation show karein
+    loaderDiv.style.display = "block";
+    loaderDiv.innerText = "🔄 Extracting media... Please hold on...";
+    loaderDiv.style.color = "#ffb300";
 
     try {
-        // Cobalt API ka upyog (Jo bina kisi login/key ke real dynamic downloads deti hai)
-        const response = await axios.post('https://cobalt.tools', {
-            url: videoUrl
-        }, {
+        // 3. Free Cobalt API ko direct frontend se request bhein
+        const response = await fetch('https://cobalt.tools', {
+            method: 'POST',
             headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                url: userLink,       // Aapka video URL
+                videoQuality: '720', // Best downloadable standard quality
+                audioFormat: 'mp3',  // Agar audio download ho toh mp3 standard format
+                filenamePattern: 'classic' // File ka naam standard rakhne ke liye
+            })
         });
-        
-        if (response.data && response.data.url) {
-            res.json({ downloadUrl: response.data.url });
-        } else {
-            res.status(400).json({ error: 'Video file could not be extracted' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Backend Server Busy. Try Again.' });
-    }
-});
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Real Server running on port ${PORT}`));
-  
+        const result = await response.json();
+
+        // 4. Check karein agar video URL mil gaya hai
+        if (result.url) {
+            loaderDiv.innerText = "✅ Success! Starting your download...";
+            loaderDiv.style.color = "#00ff88";
+            
+            // Yeh user ke browser me direct download trigger kar dega
+            window.location.href = result.url;
+        } else {
+            // Agar API link extract nahi kar payi (Jaise private video hone par)
+            loaderDiv.innerText = "❌ Video couldn't be extracted. Make sure the link is public.";
+            loaderDiv.style.color = "#ff4757";
+        }
+
+    } catch (error) {
+        // Agar net connection ya Cobalt server down ho
+        console.error("Download Error:", error);
+        loaderDiv.innerText = "⚠️ Server busy. Please try again in a moment.";
+        loaderDiv.style.color = "#ff4757";
+    }
+    }
+
