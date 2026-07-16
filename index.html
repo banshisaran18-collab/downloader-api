@@ -13,7 +13,7 @@
         .input-box:focus { border-color: #00f2fe; outline: none; }
         .btn { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #000; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,242,254,0.3); transition: 0.3s; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,242,254,0.5); }
-        #loader { margin-top: 25px; font-weight: 600; font-size: 15px; color: #ffb300; display: none; }
+        #loader { margin-top: 25px; font-weight: 600; font-size: 15px; color: #ffb300; min-height: 25px; }
         .supported-logos { margin-top: 30px; font-size: 12px; color: #63637b; display: flex; justify-content: center; gap: 15px; }
     </style>
 </head>
@@ -24,15 +24,18 @@
     <p>Download Videos from Instagram, YouTube, TikTok, Twitter & more!</p>
     
     <input type="text" id="linkInput" class="input-box" placeholder="Paste your video link here...">
+    <!-- Is button ka function name dhyaan se dekhein -->
     <button onclick="handleDownload()" class="btn">Extract & Download</button>
     
-    <div id="loader">🔄 Contacting Cobalt Server... Please wait...</div>
+    <!-- Yeh loader hamesha ready rahega status batane ke liye -->
+    <div id="loader"></div>
     
     <div class="supported-logos">
         <span>✓ Instagram</span> <span>✓ YouTube</span> <span>✓ TikTok</span> <span>✓ Twitter/X</span>
     </div>
 </div>
 
-<script src="script.js"></script>
+<!-- Yeh aapki index.js file ko connect karega -->
+<script src="index.js"></script>
 </body>
 </html>
