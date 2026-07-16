@@ -2,19 +2,19 @@ async function handleDownload() {
     const userLink = document.getElementById('linkInput').value.trim();
     const loaderDiv = document.getElementById('loader');
 
-    // 1. Check karein ki link khali toh nahi hai
+    // 1. Agar input box khali hai
     if (!userLink) {
-        alert("⚠️ Please paste a video link first!");
+        loaderDiv.innerText = "⚠️ Please paste a video link first!";
+        loaderDiv.style.color = "#ff4757";
         return;
     }
 
-    // 2. Loading animation show karein
-    loaderDiv.style.display = "block";
+    // 2. Click karte hi yeh text turant screen par dikhega
     loaderDiv.innerText = "🔄 Extracting media... Please hold on...";
     loaderDiv.style.color = "#ffb300";
 
     try {
-        // 3. Free Cobalt API ko direct frontend se request bhein
+        // 3. Cobalt Tools ki API se contact kar rahe hain
         const response = await fetch('https://cobalt.tools', {
             method: 'POST',
             headers: {
@@ -22,33 +22,32 @@ async function handleDownload() {
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                url: userLink,       // Aapka video URL
-                videoQuality: '720', // Best downloadable standard quality
-                audioFormat: 'mp3',  // Agar audio download ho toh mp3 standard format
-                filenamePattern: 'classic' // File ka naam standard rakhne ke liye
+                url: userLink
             })
         });
 
         const result = await response.json();
 
-        // 4. Check karein agar video URL mil gaya hai
-        if (result.url) {
+        // 4. Checking standard responses
+        if (result.status === 'stream' || result.status === 'redirect' || result.url) {
+            const finalUrl = result.url;
+            
             loaderDiv.innerText = "✅ Success! Starting your download...";
             loaderDiv.style.color = "#00ff88";
             
-            // Yeh user ke browser me direct download trigger kar dega
-            window.location.href = result.url;
+            // Video download window auto-trigger karega
+            window.location.href = finalUrl;
+        } else if (result.status === 'error') {
+            loaderDiv.innerText = "❌ Error: " + (result.error || "Cannot extract video.");
+            loaderDiv.style.color = "#ff4757";
         } else {
-            // Agar API link extract nahi kar payi (Jaise private video hone par)
-            loaderDiv.innerText = "❌ Video couldn't be extracted. Make sure the link is public.";
+            loaderDiv.innerText = "❌ Video file couldn't be extracted.";
             loaderDiv.style.color = "#ff4757";
         }
 
     } catch (error) {
-        // Agar net connection ya Cobalt server down ho
         console.error("Download Error:", error);
-        loaderDiv.innerText = "⚠️ Server busy. Please try again in a moment.";
+        loaderDiv.innerText = "⚠️ Connection error or API is down. Try again!";
         loaderDiv.style.color = "#ff4757";
     }
-    }
-
+}
