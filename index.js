@@ -43,5 +43,4 @@ async function handleDownload() {
         loaderDiv.style.color = "#00ff88";
         window.open(`https://savefrom.net{encodeURIComponent(userLink)}`, '_blank');
     }
-                }
-        
+}
