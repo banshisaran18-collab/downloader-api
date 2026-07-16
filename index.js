@@ -2,20 +2,22 @@ async function handleDownload() {
     const userLink = document.getElementById('linkInput').value.trim();
     const loaderDiv = document.getElementById('loader');
 
-    // 1. Agar input box khali hai
+    // 1. Check karein agar input box khali hai
     if (!userLink) {
         loaderDiv.innerText = "⚠️ Please paste a video link first!";
         loaderDiv.style.color = "#ff4757";
         return;
     }
 
-    // 2. Click karte hi yeh text turant screen par dikhega
-    loaderDiv.innerText = "🔄 Extracting media... Please hold on...";
+    // 2. Status message show karein
+    loaderDiv.innerText = "🔄 Processing via Proxy Server... Please wait...";
     loaderDiv.style.color = "#ffb300";
 
     try {
-        // 3. Cobalt Tools ki API se contact kar rahe hain
-        const response = await fetch('https://cobalt.tools', {
+        // Hum ek alternate free public instance use kar rahe hain jo kabhi busy nahi rehta
+        const apiUrl = 'https://wuk.sh'; 
+
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -28,26 +30,26 @@ async function handleDownload() {
 
         const result = await response.json();
 
-        // 4. Checking standard responses
-        if (result.status === 'stream' || result.status === 'redirect' || result.url) {
-            const finalUrl = result.url;
-            
+        // 3. Agar response sahi mila aur url aa gaya
+        if (result.url) {
             loaderDiv.innerText = "✅ Success! Starting your download...";
             loaderDiv.style.color = "#00ff88";
             
-            // Video download window auto-trigger karega
-            window.location.href = finalUrl;
-        } else if (result.status === 'error') {
-            loaderDiv.innerText = "❌ Error: " + (result.error || "Cannot extract video.");
-            loaderDiv.style.color = "#ff4757";
+            // Video automatic download window khol dega
+            window.location.href = result.url;
+        } else if (result.text) {
+            // Kuch instances direct url ki jagah text link dete hain
+            loaderDiv.innerText = "✅ Link Extracted! Redirecting...";
+            loaderDiv.style.color = "#00ff88";
+            window.location.href = result.text;
         } else {
-            loaderDiv.innerText = "❌ Video file couldn't be extracted.";
+            loaderDiv.innerText = "❌ Video file couldn't be extracted. Make sure the link is public.";
             loaderDiv.style.color = "#ff4757";
         }
 
     } catch (error) {
         console.error("Download Error:", error);
-        loaderDiv.innerText = "⚠️ Connection error or API is down. Try again!";
+        loaderDiv.innerText = "⚠️ Server took too long to respond. Please try another link.";
         loaderDiv.style.color = "#ff4757";
     }
-}
+    }
